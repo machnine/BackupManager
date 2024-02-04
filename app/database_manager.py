@@ -1,7 +1,7 @@
 """Tasks database manager."""
 import sqlite3
 
-from app.setting import Setting
+from .setting import Setting
 
 
 class DatabaseManager:
@@ -17,11 +17,9 @@ class DatabaseManager:
             cursor = conn.cursor()
             cursor.execute(self.get_schema_definition())
 
-    def destroy(self):
-        """Destroy the tables and view in database."""
-        with sqlite3.connect(self.database_file) as conn:
-            cursor = conn.cursor()
-            cursor.execute("DROP TABLE tasks")
+    def delete(self):
+        """delete database"""
+        self.database_file.unlink()
 
     def get_schema_definition(self):
         """Return the schema definitions."""

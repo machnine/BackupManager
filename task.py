@@ -3,11 +3,12 @@
 import argparse
 import json
 
-from app.backup_task import BackupTask
+from app import BackupTask, ColorText
 
 
 def list_tasks():
     tasks = BackupTask.get_all(False)
+    print(ColorText.message("\n==== Tasks ====\n", "CYAN"))
     for task in tasks:
         print(task)
 
@@ -25,6 +26,7 @@ def delete_task():
 
 
 def add_task():
+    print(ColorText.message("\n==== Add a new backup task ====\n", "CYAN"))
     task_name = input("Please input the task name: ")
     schedule_type = input("Please input the schedule type (daily/weekly/monthly): ")
     task_type = input("Please input the task type (file/mssql): ")

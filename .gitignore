@@ -1,3 +1,5 @@
+# executable 
+*.exe
 # vscode
 .vscode/
 #sqlite db

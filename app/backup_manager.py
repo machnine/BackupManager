@@ -8,7 +8,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from app.backup_task import BackupTask
+from .backup_task import BackupTask
 
 RETENTION_COUNT = 7  # Number of daily backups to keep
 
@@ -69,7 +69,6 @@ class BackupManager:
 
         try:
             self._copy_files(source_path, destination_path, destination_name)
-            print(source_path, destination_path, destination_name)
             logging.info("File task [%s] completed successfully", task.task_name)
         except Exception as e:
             logging.error("File task [%s] failed: %s", task.task_name, e)
@@ -83,18 +82,13 @@ class BackupManager:
             shutil.copy2(source, destination_file)
 
     def mssql_backup(self, task):
-        """Backup the MSSQL database with the latest backup information."""
+        """Backup the MSSQL database directly to the network location."""
         backup_file = task.source["database"] + "_" + self.date_stamp + ".bak"
-        backup_path = Path(task.destination)
-        local_temp_path = Path("c:\\temp")
-        # Create the backup path and temp path if they don't exist
-        backup_path.mkdir(parents=True, exist_ok=True)
-        local_temp_path.mkdir(parents=True, exist_ok=True)
-        backup_command = self._construct_mssql_backup_command(task, local_temp_path / backup_file)
+        backup_path = Path(task.destination) / backup_file
+        backup_command = self._construct_mssql_backup_command(task, backup_path)
 
         try:
             subprocess.run(backup_command, check=True, shell=True)
-            self._finalize_database_backup(local_temp_path / backup_file, backup_path / backup_file)
             logging.info("Database backup for task %s completed successfully.", task.task_name)
         except Exception as e:
             logging.error("Database backup for task %s failed: %s", task.task_name, e)
@@ -107,24 +101,17 @@ class BackupManager:
         database = task.source["database"]
         username = task.source["username"]
         password = task.source["password"]
-        return (
+        sqlcmd = (
             f'sqlcmd -S {server} -U {username} -P "{password}" '
             f"-Q \"BACKUP DATABASE {database} TO DISK = '{backup_file}' WITH FORMAT\""
         )
-
-    def _finalize_database_backup(self, local_backup_file, final_backup_file):
-        """Finalize the database backup by moving it to the final location."""
-        if local_backup_file.exists():
-            shutil.copy2(local_backup_file, final_backup_file)
-            local_backup_file.unlink()
-        else:
-            raise FileNotFoundError(f"Local backup file {local_backup_file} not found.")
+        return sqlcmd
 
     def cleanup_old_backups(self, destination_path):
         """Keep only the latest RETENTION_COUNT backup files/folders in the destination path."""
         destination = Path(destination_path)
         if not destination.exists():
-            logging.warning("Destination path %s does not exist.", destination_path)
+            logging.warning("Destination path %s does not exist. Backup Manager is not able to delete older files", destination_path)
             return
 
         # List all files and directories in the destination directory

@@ -3,7 +3,7 @@ import json
 import logging
 import sqlite3
 
-from app.setting import Setting
+from .setting import Setting
 
 
 class BackupTask:
@@ -107,7 +107,7 @@ class BackupTask:
     def __str__(self):
         """String representation of the BackupTask."""
         # self.task_type has fixed length of 6 characters
-        return f"BackupTask: {self.task_id}\t{self.task_type}\t{self.schedule_type}\t{"A" if self.enabled else "-"}\t'{self.task_name}'"
+        return f"BackupTask: {self.task_id}\t{self.task_type}\t{self.schedule_type}\t{'A' if self.enabled else '-'}\t'{self.task_name}'"
 
     def __repr__(self):
         """Representation of the BackupTask."""

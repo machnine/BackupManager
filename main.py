@@ -1,8 +1,7 @@
 """ main """
 import logging
 
-from app.backup_manager import BackupManager
-from app.setting import Setting
+from app import BackupManager, Setting
 
 if __name__ == "__main__":
     # set up logging to file

@@ -27,3 +27,24 @@ class Setting:
         except Exception as e:
             logging.error("Failed to load configuration: %s", e)
         return None, None
+
+
+class ColorText:
+    """Color class for printing colored text in terminal."""
+
+    colors = {
+        "RED": "\033[91m",
+        "GREEN": "\033[92m",
+        "YELLOW": "\033[93m",
+        "BLUE": "\033[94m",
+        "MAGENTA": "\033[95m",
+        "CYAN": "\033[96m",
+        "RESET": "\033[0m",
+    }
+
+    @classmethod
+    def message(cls, message: str, color: str = "RESET"):
+        """Print message with color."""
+        RESET = cls.colors["RESET"]
+        color = cls.colors[color.upper()]
+        return f"{color}{message}{RESET}"
